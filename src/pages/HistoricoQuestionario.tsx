@@ -37,7 +37,7 @@ export default function HistoricoQuestionario() {
           .from('questionarios_cuida_sm')
           .select('*, perfis_usuarios(nome_completo)')
           .eq('cidadao_id', id)
-          .order('created_at', { ascending: false });
+          .order('data_preenchimento', { ascending: false });
 
         if (qError) throw qError;
         if (qData) setQuestionarios(qData);
@@ -116,7 +116,7 @@ export default function HistoricoQuestionario() {
                       Bloco {q.bloco}
                     </span>
                     <span className="text-[10px] text-gray-400 font-medium">
-                      {format(new Date(q.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}
+                      {format(new Date(q.data_preenchimento), "dd/MM/yyyy HH:mm", { locale: ptBR })}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
@@ -143,7 +143,7 @@ export default function HistoricoQuestionario() {
               <div className="bg-gray-50 px-6 py-4 border-b border-gray-100 flex items-center justify-between">
                 <div>
                   <h3 className="font-bold text-gray-800">Respostas do Bloco {selectedQ.bloco}</h3>
-                  <p className="text-xs text-gray-500">Realizado em {format(new Date(selectedQ.created_at), "PPP 'às' p", { locale: ptBR })}</p>
+                  <p className="text-xs text-gray-500">Realizado em {format(new Date(selectedQ.data_preenchimento), "PPP 'às' p", { locale: ptBR })}</p>
                 </div>
                 <div className="bg-emerald-600 text-white px-4 py-2 rounded-lg text-center">
                   <p className="text-[10px] font-bold uppercase opacity-80 leading-none">Pontuação</p>
