@@ -17,7 +17,7 @@ export default function Cadastro() {
   const [senha, setSenha] = useState('');
   const [equipeId, setEquipeId] = useState('');
   const [microArea, setMicroArea] = useState('');
-  const [nivelAcesso, setNivelAcesso] = useState<'B' | 'C' | 'D'>('D');
+  const [nivelAcesso, setNivelAcesso] = useState<'B' | 'C' | 'D' | 'E'>('D');
 
   useEffect(() => {
     const fetchEquipes = async () => {
@@ -137,6 +137,7 @@ export default function Cadastro() {
                   <option value="B">B - Coordenador</option>
                   <option value="C">C - Outro Profissional</option>
                   <option value="D">D - ACS</option>
+                  <option value="E">E - Gerente da Unidade</option>
                 </select>
               </div>
 

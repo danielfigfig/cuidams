@@ -15,7 +15,7 @@ export default function Dashboard() {
       let qQuestions = supabase.from('questionarios_cuida_sm').select('*', { count: 'exact', head: true });
 
       // Filtrar baseado no nível
-      if (perfil.nivel_acesso === 'C' || perfil.nivel_acesso === 'D') {
+      if (perfil.nivel_acesso === 'C' || perfil.nivel_acesso === 'D' || perfil.nivel_acesso === 'E') {
          qCidadaos = qCidadaos.eq('equipe_id', perfil.equipe_id);
       }
 
@@ -70,13 +70,15 @@ export default function Dashboard() {
               {perfil?.nivel_acesso === 'B' && 'Coordenador (B)'}
               {perfil?.nivel_acesso === 'C' && 'Profissional (C)'}
               {perfil?.nivel_acesso === 'D' && 'Profissional/Agente (D)'}
+              {perfil?.nivel_acesso === 'E' && 'Gerente da Unidade (E)'}
             </span>
           </div>
           <p className="text-xs text-gray-400 mt-1">
             {perfil?.nivel_acesso === 'A' && 'Acesso e modificação plenos em todo o sistema.'}
             {perfil?.nivel_acesso === 'B' && 'Visualização de todos os dados do município.'}
-            {perfil?.nivel_acesso === 'C' && 'Visualização restrita à sua própria equipe.'}
+            {perfil?.nivel_acesso === 'C' && 'Cadastro e visualização apenas dos próprios cidadãos criados.'}
             {perfil?.nivel_acesso === 'D' && 'Cadastro e acompanhamento de cidadãos de sua equipe.'}
+            {perfil?.nivel_acesso === 'E' && 'Acesso total aos dados de cidadãos da sua unidade (equipe).'}
           </p>
         </div>
 

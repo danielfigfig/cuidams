@@ -1,15 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { useAuth } from '../contexts/AuthContext';
-import { ArrowLeft, Loader2, Calendar, User, ClipboardList, CheckCircle2, XCircle } from 'lucide-react';
+import { ArrowLeft, Loader2, User, ClipboardList, CheckCircle2, XCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 export default function HistoricoQuestionario() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { perfil } = useAuth();
   
   const [cidadao, setCidadao] = useState<any>(null);
   const [questionarios, setQuestionarios] = useState<any[]>([]);
@@ -154,7 +152,7 @@ export default function HistoricoQuestionario() {
               </div>
               
               <div className="p-6 overflow-y-auto flex-1 space-y-3">
-                {Object.entries(selectedQ.respostas).map(([pergunta, resposta], idx) => (
+                {Object.entries(selectedQ.respostas as Record<string, string>).map(([pergunta, resposta], idx) => (
                   <div key={idx} className="flex items-start gap-4 p-3 rounded-lg bg-gray-50/50 border border-gray-100">
                     <div className="mt-1">
                       {resposta === 'sim' ? (

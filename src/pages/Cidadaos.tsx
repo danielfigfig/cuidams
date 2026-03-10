@@ -16,9 +16,11 @@ export default function Cidadaos() {
     setLoading(true);
     let q = supabase.from('cidadaos').select('*, equipes(nome), questionarios_cuida_sm(id)').order('nome');
     
-    // RLS ja trata D e C, mas bom garantir no front
-    if (perfil.nivel_acesso === 'C' || perfil.nivel_acesso === 'D') {
+    // RLS ja trata D, E e C, mas para garantir no front a nível de UX
+    if (perfil.nivel_acesso === 'D' || perfil.nivel_acesso === 'E') {
       q = q.eq('equipe_id', perfil.equipe_id);
+    } else if (perfil.nivel_acesso === 'C') {
+      q = q.eq('usuario_id', perfil.id);
     }
     if (busca) {
       // Remover máscara antes de buscar por CPF ou buscar por nome
@@ -53,7 +55,7 @@ export default function Cidadaos() {
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
         <h1 className="text-2xl font-bold tracking-tight text-gray-900">Gestão de Cidadãos</h1>
         
-        {(perfil?.nivel_acesso === 'A' || perfil?.nivel_acesso === 'C' || perfil?.nivel_acesso === 'D') && (
+        {(perfil?.nivel_acesso === 'A' || perfil?.nivel_acesso === 'C' || perfil?.nivel_acesso === 'D' || perfil?.nivel_acesso === 'E') && (
           <Link
             to="/cidadaos/novo"
             className="inline-flex items-center px-4 py-2 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700 transition-colors shadow-sm"
@@ -144,7 +146,7 @@ export default function Cidadaos() {
                         </Link>
                       )}
 
-                      {(perfil?.nivel_acesso === 'A' || perfil?.nivel_acesso === 'C' || perfil?.nivel_acesso === 'D') && (
+                      {(perfil?.nivel_acesso === 'A' || perfil?.nivel_acesso === 'C' || perfil?.nivel_acesso === 'D' || perfil?.nivel_acesso === 'E') && (
                         <Link
                           to={`/cidadaos/${cid.id}/questionario`}
                           className="inline-flex items-center text-blue-600 hover:text-blue-900 bg-blue-50 px-3 py-1.5 rounded-md transition-colors"

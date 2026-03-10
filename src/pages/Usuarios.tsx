@@ -101,12 +101,14 @@ export default function Usuarios() {
                           <option value="B">B - Coordenador</option>
                           <option value="C">C - Outro Profissional</option>
                           <option value="D">D - ACS</option>
+                          <option value="E">E - Gerente da Unidade</option>
                         </select>
                       ) : (
                         <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
                           ${u.nivel_acesso === 'A' ? 'bg-indigo-100 text-indigo-800' : 
                           u.nivel_acesso === 'B' ? 'bg-blue-100 text-blue-800' : 
-                          u.nivel_acesso === 'C' ? 'bg-yellow-100 text-yellow-800' : 'bg-emerald-100 text-emerald-800'}`}>
+                          u.nivel_acesso === 'C' ? 'bg-yellow-100 text-yellow-800' : 
+                          u.nivel_acesso === 'E' ? 'bg-purple-100 text-purple-800' : 'bg-emerald-100 text-emerald-800'}`}>
                           Nível {u.nivel_acesso}
                         </span>
                       )}

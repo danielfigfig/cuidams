@@ -11,7 +11,7 @@ export type Perfil = {
   email: string;
   equipe_id: string;
   micro_area: string;
-  nivel_acesso: 'A' | 'B' | 'C' | 'D';
+  nivel_acesso: 'A' | 'B' | 'C' | 'D' | 'E';
 };
 
 interface AuthContextType {

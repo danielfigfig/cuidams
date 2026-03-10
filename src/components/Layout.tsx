@@ -37,10 +37,6 @@ export default function Layout() {
         </div>
         
         <div className="p-4 flex-1 overflow-y-auto">
-          <div className="mb-6 px-2 py-3 bg-gray-50 rounded-lg border border-gray-100">
-            <p className="text-sm font-semibold text-gray-900 truncate">{perfil.nome_completo}</p>
-            <p className="text-xs text-emerald-600 font-medium">Nível: {perfil.nivel_acesso}</p>
-          </div>
 
           <nav className="space-y-1">
             {perfil.nivel_acesso === 'A' && (
@@ -59,7 +55,7 @@ export default function Layout() {
                 Ver Usuários
               </Link>
             )}
-            {perfil.nivel_acesso === 'C' && (
+            {(perfil.nivel_acesso === 'A' || perfil.nivel_acesso === 'C' || perfil.nivel_acesso === 'D' || perfil.nivel_acesso === 'E') && (
               <Link
                 to="/questionario"
                 className={twMerge(
@@ -101,6 +97,10 @@ export default function Layout() {
         </div>
         
         <div className="p-4 border-t border-gray-200">
+          <div className="mb-4 px-2 py-3 bg-gray-50 rounded-lg border border-gray-100">
+            <p className="text-sm font-semibold text-gray-900 truncate">{perfil.nome_completo}</p>
+            <p className="text-xs text-emerald-600 font-medium">Nível: {perfil.nivel_acesso}</p>
+          </div>
           <div className="mb-4 text-xs text-center text-gray-500 bg-gray-50 p-3 rounded-lg border border-gray-100">
             <p className="font-semibold text-gray-700">Dúvidas? Fale com a SESAU</p>
             <p className="mt-1">Coordenação de Saúde Digital</p>

@@ -20,7 +20,7 @@ export default function CidadaoForm() {
 
   // Redireciona usuários sem permissão de cadastro
   useEffect(() => {
-    if (perfil && !['A', 'C', 'D'].includes(perfil.nivel_acesso)) {
+    if (perfil && !['A', 'C', 'D', 'E'].includes(perfil.nivel_acesso)) {
       navigate('/cidadaos', { replace: true });
     }
   }, [perfil, navigate]);
@@ -30,7 +30,7 @@ export default function CidadaoForm() {
       const { data } = await supabase.from('equipes').select('*').order('nome');
       if (data) setEquipes(data);
       
-      if (perfil?.nivel_acesso === 'C' || perfil?.nivel_acesso === 'D') {
+      if (perfil?.nivel_acesso === 'C' || perfil?.nivel_acesso === 'D' || perfil?.nivel_acesso === 'E') {
         setEquipeId(perfil.equipe_id);
       }
     };
@@ -60,7 +60,8 @@ export default function CidadaoForm() {
         nome,
         cpf: cpf.replace(/\D/g, ''),
         micro_area: microArea,
-        equipe_id: equipeId
+        equipe_id: equipeId,
+        usuario_id: perfil?.id || undefined // Registra quem criou
       });
 
       if (err) throw err;
@@ -112,7 +113,7 @@ export default function CidadaoForm() {
                 required 
                 value={equipeId} 
                 onChange={(e) => setEquipeId(e.target.value)} 
-                disabled={perfil?.nivel_acesso === 'C' || perfil?.nivel_acesso === 'D'}
+                disabled={perfil?.nivel_acesso === 'C' || perfil?.nivel_acesso === 'D' || perfil?.nivel_acesso === 'E'}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500 outline-none bg-white disabled:bg-gray-100 transition-all"
               >
                 <option value="">Selecione uma equipe</option>
@@ -120,7 +121,7 @@ export default function CidadaoForm() {
                   <option key={t.id} value={t.id}>{t.nome}</option>
                 ))}
               </select>
-              {(perfil?.nivel_acesso === 'C' || perfil?.nivel_acesso === 'D') && (
+              {(perfil?.nivel_acesso === 'C' || perfil?.nivel_acesso === 'D' || perfil?.nivel_acesso === 'E') && (
                 <p className="mt-1 flex items-center text-xs text-emerald-600">Sua equipe foi pré-selecionada automaticamente.</p>
               )}
             </div>
