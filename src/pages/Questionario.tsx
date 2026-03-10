@@ -63,7 +63,7 @@ export default function Questionario() {
     const fetchCidadao = async () => {
       if (id) {
         setLoadingCidadao(true);
-        const { data, error: err } = await supabase.from('cidadaos').select('*').eq('id', id).single();
+        const { data } = await supabase.from('cidadaos').select('*').eq('id', id).single();
         if (data) {
           setCidadao(data);
         } else {
@@ -152,8 +152,8 @@ export default function Questionario() {
       } else {
         navigate('/cidadaos');
       }
-    } catch (err: any) {
-      setError(err.message || 'Erro ao salvar questionário.');
+    } catch (e: any) {
+      setError(e.message || 'Erro ao salvar questionário.');
     } finally {
       setLoadingSubmit(false);
     }
