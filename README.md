@@ -1,73 +1,67 @@
-# React + TypeScript + Vite
+# 🏥 CuidaSM - Sistema de Gestão de Cadastros e Questionários
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Este é o sistema oficial de gestão de moradores e aplicação de questionários **CuidaSM**, desenvolvido para a **SESAU - Secretaria Municipal de Saúde de Aquidauana**.
 
-Currently, two official plugins are available:
+O sistema foi projetado para facilitar a triagem e o acompanhamento de cidadãos, permitindo que profissionais de diferentes níveis (Coordenadores, Médicos/Enfermeiros e ACS) gerenciem dados e histórico de avaliações de forma segura e eficiente.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## React Compiler
+## 🚀 Funcionalidades Principais
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### 👥 Gestão de Cidadãos
+- **Cadastro Completo**: Registro de cidadãos com geração automática de códigos, validação de CPF e vinculação obrigatória a Equipes e Microáreas.
+- **Busca Inteligente**: Pesquisa rápida por nome ou CPF com filtros automáticos baseados no nível de acesso do usuário.
+- **Histórico Individual**: Visualização de todos os questionários preenchidos anteriormente, com data, pontuação e profissional responsável.
 
-## Expanding the ESLint configuration
+### 📝 Questionário CuidaSM
+- **Bloco 1 (Dimensões Autorreferidas)**: 17 perguntas sobre autonomia e bem-estar.
+- **Bloco 2 (Dimensões Avaliadas)**: 14 perguntas técnicas para avaliação profissional.
+- **Cálculo de Score**: Pontuação automática baseada nas respostas, integrada ao registro do cidadão.
+- **Acesso Rápido**: Aba dedicada para aplicação de questionários buscando o cidadão pelo nome ou CPF no momento do atendimento.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### 🔐 Segurança e Acessos (Níveis)
+O sistema utiliza **Row Level Security (RLS)** no banco de dados para garantir a privacidade dos dados:
+- **Nível A (Admin/Master)**: Gestão total de usuários (promoção de perfis), cidadãos e questionários de todas as equipes.
+- **Nível B (Coordenador)**: Acesso de leitura total a todos os dados do sistema.
+- **Nível C (Outro Profissional)**: Gestão de cidadãos e questionários restritos à sua própria equipe.
+- **Nível D (ACS)**: Cadastro de cidadãos restrito à sua equipe e microárea.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+---
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## 🛠️ Tecnologias Utilizadas
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+- **Frontend**: React + Vite + TailwindCSS (Interface moderna, rápida e responsiva).
+- **Backend / Banco de Dados**: Supabase (PostgreSQL com políticas de RLS).
+- **Autenticação**: Supabase Auth (Login seguro com recuperação de senha via email).
+- **Hospedagem**: Vercel (Deploy automático via GitHub).
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+---
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## 📂 Estrutura do Projeto
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+- `/src/pages`: Telas principais do sistema (Dashboard, Login, Questionários, etc).
+- `/src/components`: Componentes reutilizáveis (Layout, Sidebar, Botões).
+- `/src/lib`: Funções utilitárias (Validadores de CPF, máscaras, conexão Supabase).
+- `/supabase`: Scripts SQL para criação de tabelas e políticas de segurança.
+
+---
+
+## 💻 Como continuar o desenvolvimento (Em outro PC)
+
+1. **Repositório**: O código está seguro em `https://github.com/danielfigfig/cuidams`.
+2. **Setup**:
+   ```bash
+   git clone https://github.com/danielfigfig/cuidams.git
+   cd cuidams
+   npm install
+   ```
+3. **Variáveis de Ambiente**: Crie um arquivo `.env` na raiz com as chaves do seu Supabase (`VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY`).
+4. **Execução**: `npm run dev` para rodar localmente.
+
+---
+
+## 📞 Suporte e Contato
+Desenvolvido em parceria com a **Coordenação de Saúde Digital da SESAU**.
+WhatsApp de Suporte: (67) 99217-8731
+
+*Documentação gerada automaticamente para o projeto CuidaSM em 10 de Março de 2026.*
