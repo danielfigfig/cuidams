@@ -28,9 +28,12 @@ export default function Layout() {
   return (
     <div className="min-h-screen flex bg-gray-50 text-gray-900">
       <aside className="w-64 bg-white border-r border-gray-200 flex flex-col h-screen fixed">
-        <div className="h-16 flex items-center px-6 border-b border-gray-100">
-          <HeartPulse className="w-8 h-8 text-emerald-500 mr-2" />
-          <span className="text-xl font-black tracking-tight text-gray-900">CuidaSM</span>
+        <div className="h-20 flex flex-col justify-center items-center px-6 border-b border-gray-100 bg-white">
+          <img src="/logo-sesau.png" alt="Logo SESAU" className="h-8 object-contain mb-1" />
+          <div className="flex items-center">
+            <HeartPulse className="w-5 h-5 text-emerald-500 mr-1" />
+            <span className="text-lg font-black tracking-tight text-gray-900 leading-none">CuidaSM</span>
+          </div>
         </div>
         
         <div className="p-4 flex-1 overflow-y-auto">
