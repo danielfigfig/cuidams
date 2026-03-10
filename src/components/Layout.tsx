@@ -1,6 +1,6 @@
 import { Outlet, Navigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { HeartPulse, LayoutDashboard, Users, LogOut, Shield, FileText } from 'lucide-react';
+import { HeartPulse, LayoutDashboard, Users, LogOut, Shield, FileText, FileBarChart } from 'lucide-react';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -22,7 +22,8 @@ export default function Layout() {
 
   const links = [
     { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-    { to: '/cidadaos', icon: Users, label: 'Cidadãos' }
+    { to: '/cidadaos', icon: Users, label: 'Cidadãos' },
+    { to: '/relatorios', icon: FileBarChart, label: 'Relatórios' }
   ];
 
   return (
