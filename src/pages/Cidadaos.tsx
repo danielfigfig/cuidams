@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { Search, Plus, FileText, ClipboardList } from 'lucide-react';
-import { clsx } from 'clsx';
+import clsx from 'clsx';
 
 export default function Cidadaos() {
   const { perfil } = useAuth();
@@ -30,8 +30,10 @@ export default function Cidadaos() {
       }
     }
 
-    const { data } = await q;
+    const { data, error } = await q;
+    if (error) console.error("Erro ao carregar cidadãos:", error);
     if (data) {
+      console.log("Cidadãos carregados:", data);
       // Formatar os dados para incluir flag temQuestionario
       const cidadaosFormatados = data.map(cid => ({
         ...cid,
@@ -124,7 +126,8 @@ export default function Cidadaos() {
                       {cid.equipes?.nome} <span className="text-xs font-bold text-gray-400 bg-gray-100 px-2 py-0.5 rounded ml-2">MA: {cid.micro_area}</span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-3">
-                      {(perfil?.nivel_acesso === 'A' || perfil?.nivel_acesso === 'B' || perfil?.nivel_acesso === 'C') && (
+                      {/* O botão de consulta agora é visível para TODOS os níveis, pois todos precisam saber se o cidadão já foi avaliado */}
+                      {perfil && (
                         <Link
                           to={cid.temQuestionario ? `/cidadaos/${cid.id}/historico` : '#'}
                           onClick={(e) => !cid.temQuestionario && e.preventDefault()}
