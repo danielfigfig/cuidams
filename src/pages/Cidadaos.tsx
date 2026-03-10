@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
-import { Search, Plus, FileText } from 'lucide-react';
+import { Search, Plus, FileText, ClipboardList } from 'lucide-react';
+import { clsx } from 'clsx';
 
 export default function Cidadaos() {
   const { perfil } = useAuth();
@@ -13,7 +14,7 @@ export default function Cidadaos() {
   const carregarCidadaos = async () => {
     if (!perfil) return;
     setLoading(true);
-    let q = supabase.from('cidadaos').select('*, equipes(nome)').order('nome');
+    let q = supabase.from('cidadaos').select('*, equipes(nome), questionarios_cuida_sm(id)').order('nome');
     
     // RLS ja trata D e C, mas bom garantir no front
     if (perfil.nivel_acesso === 'C' || perfil.nivel_acesso === 'D') {
@@ -30,7 +31,14 @@ export default function Cidadaos() {
     }
 
     const { data } = await q;
-    if (data) setCidadaos(data);
+    if (data) {
+      // Formatar os dados para incluir flag temQuestionario
+      const cidadaosFormatados = data.map(cid => ({
+        ...cid,
+        temQuestionario: cid.questionarios_cuida_sm && cid.questionarios_cuida_sm.length > 0
+      }));
+      setCidadaos(cidadaosFormatados);
+    }
     setLoading(false);
   };
 
@@ -116,10 +124,27 @@ export default function Cidadaos() {
                       {cid.equipes?.nome} <span className="text-xs font-bold text-gray-400 bg-gray-100 px-2 py-0.5 rounded ml-2">MA: {cid.micro_area}</span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-3">
+                      {(perfil?.nivel_acesso === 'A' || perfil?.nivel_acesso === 'B' || perfil?.nivel_acesso === 'C') && (
+                        <Link
+                          to={cid.temQuestionario ? `/cidadaos/${cid.id}/historico` : '#'}
+                          onClick={(e) => !cid.temQuestionario && e.preventDefault()}
+                          className={clsx(
+                            "inline-flex items-center px-3 py-1.5 rounded-md transition-all",
+                            cid.temQuestionario 
+                              ? "text-emerald-700 bg-emerald-50 hover:bg-emerald-100 cursor-pointer" 
+                              : "text-red-700 bg-red-50 cursor-not-allowed opacity-70"
+                          )}
+                          title={cid.temQuestionario ? "Consultar questionário preenchido" : "Ainda não há questionário preenchido para este cidadão"}
+                        >
+                          <ClipboardList className="w-4 h-4 mr-1.5" />
+                          Consultar Questionário
+                        </Link>
+                      )}
+
                       {(perfil?.nivel_acesso === 'A' || perfil?.nivel_acesso === 'C' || perfil?.nivel_acesso === 'D') && (
                         <Link
                           to={`/cidadaos/${cid.id}/questionario`}
-                          className="inline-flex items-center text-emerald-600 hover:text-emerald-900 bg-emerald-50 px-3 py-1.5 rounded-md transition-colors"
+                          className="inline-flex items-center text-blue-600 hover:text-blue-900 bg-blue-50 px-3 py-1.5 rounded-md transition-colors"
                           title="Avaliar CuidaSM"
                         >
                           <FileText className="w-4 h-4 mr-1.5" />

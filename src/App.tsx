@@ -10,6 +10,7 @@ import Usuarios from './pages/Usuarios';
 import Cidadaos from './pages/Cidadaos';
 import CidadaoForm from './pages/CidadaoForm';
 import Questionario from './pages/Questionario';
+import HistoricoQuestionario from './pages/HistoricoQuestionario';
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
             <Route path="/cidadaos" element={<Cidadaos />} />
             <Route path="/cidadaos/novo" element={<CidadaoForm />} />
             <Route path="/cidadaos/:id/questionario" element={<Questionario />} />
+            <Route path="/cidadaos/:id/historico" element={<HistoricoQuestionario />} />
           </Route>
         </Routes>
       </AuthProvider>
