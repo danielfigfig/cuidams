@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
-import { Shield, Loader2, Edit2, Check, X } from 'lucide-react';
+import { Shield, Loader2, Edit2, Check, X, Trash2 } from 'lucide-react';
 
 export default function Usuarios() {
   const { perfil } = useAuth();
@@ -51,6 +51,23 @@ export default function Usuarios() {
       alert('Erro ao atualizar nível. Você tem permissão para isso?');
     }
     setEditingId(null);
+  };
+
+  const handleDelete = async (id: string, nome: string) => {
+    if (window.confirm(`Tem certeza que deseja excluir o usuário ${nome}? Esta ação removerá o acesso dele ao sistema.`)) {
+      setLoading(true);
+      const { error } = await supabase
+        .from('perfis_usuarios')
+        .delete()
+        .eq('id', id);
+        
+      if (!error) {
+        setUsuarios(usuarios.filter(u => u.id !== id));
+      } else {
+        alert('Erro ao excluir usuário. Verifique suas permissões.');
+      }
+      setLoading(false);
+    }
   };
 
   return (
@@ -120,9 +137,14 @@ export default function Usuarios() {
                           <button onClick={() => setEditingId(null)} className="text-red-600 hover:text-red-900 bg-red-50 p-1.5 rounded-md"><X className="w-5 h-5"/></button>
                         </div>
                       ) : (
-                        <button onClick={() => handleEdit(u)} className="text-indigo-600 hover:text-indigo-900 bg-indigo-50 p-1.5 rounded-md">
-                          <Edit2 className="w-4 h-4" />
-                        </button>
+                        <div className="flex justify-end space-x-2">
+                          <button onClick={() => handleEdit(u)} className="text-indigo-600 hover:text-indigo-900 bg-indigo-50 p-1.5 rounded-md" title="Editar Nível">
+                            <Edit2 className="w-4 h-4" />
+                          </button>
+                          <button onClick={() => handleDelete(u.id, u.nome_completo)} className="text-red-600 hover:text-red-900 bg-red-50 p-1.5 rounded-md" title="Excluir Usuário">
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
                       )}
                     </td>
                   </tr>
