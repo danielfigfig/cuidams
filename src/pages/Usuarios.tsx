@@ -62,7 +62,8 @@ export default function Usuarios() {
       if (!error) {
         setUsuarios(usuarios.filter(u => u.id !== id));
       } else {
-        alert('Erro ao excluir usuário. Verifique suas permissões.');
+        console.error('Erro na RPC de exclusão:', error);
+        alert('Erro ao excluir usuário: ' + error.message);
       }
       setLoading(false);
     }
