@@ -57,7 +57,7 @@ export default function Usuarios() {
     if (window.confirm(`Tem certeza que deseja excluir o usuário ${nome}? Esta ação removerá o acesso dele ao sistema.`)) {
       setLoading(true);
       const { error } = await supabase
-        .rpc('delete_user_by_admin', { target_user_id: id });
+        .rpc('delete_user_by_admin', { target_user_id: id, admin_user_id: perfil?.id });
         
       if (!error) {
         setUsuarios(usuarios.filter(u => u.id !== id));
