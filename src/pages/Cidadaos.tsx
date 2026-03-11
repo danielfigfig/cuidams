@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
-import { Search, Plus, FileText, ClipboardList } from 'lucide-react';
+import { Search, Plus, FileText, ClipboardList, Activity } from 'lucide-react';
+import { classificarRisco } from '../lib/riscoUtils';
 import clsx from 'clsx';
 
 export default function Cidadaos() {
@@ -14,7 +15,7 @@ export default function Cidadaos() {
   const carregarCidadaos = async () => {
     if (!perfil) return;
     setLoading(true);
-    let q = supabase.from('cidadaos').select('*, equipes(nome), questionarios_cuida_sm(id)').order('nome');
+    let q = supabase.from('cidadaos').select('*, equipes(nome), questionarios_cuida_sm(id, bloco, pontuacao_total, data_preenchimento)').order('nome');
     
     // RLS ja trata D, E e C, mas para garantir no front a nível de UX
     if (perfil.nivel_acesso === 'D' || perfil.nivel_acesso === 'E') {
@@ -36,11 +37,33 @@ export default function Cidadaos() {
     if (error) console.error("Erro ao carregar cidadãos:", error);
     if (data) {
       console.log("Cidadãos carregados:", data);
-      // Formatar os dados para incluir flag temQuestionario
-      const cidadaosFormatados = data.map(cid => ({
-        ...cid,
-        temQuestionario: cid.questionarios_cuida_sm && cid.questionarios_cuida_sm.length > 0
-      }));
+      // Formatar os dados para incluir flag temQuestionario e o risco atualizado
+      const cidadaosFormatados = data.map(cid => {
+        const questionarios = cid.questionarios_cuida_sm || [];
+        const temQuestionario = questionarios.length > 0;
+        
+        let riscoCalc = null;
+        if (temQuestionario) {
+          // Ordena questionarios do mais recente pro mais antigo
+          const qs = [...questionarios].sort((a, b) => new Date(b.data_preenchimento).getTime() - new Date(a.data_preenchimento).getTime());
+          
+          // Pega o ultimo do bloco 1 e ultimo do bloco 2
+          const utlBloco1 = qs.find(q => q.bloco === 1);
+          const utlBloco2 = qs.find(q => q.bloco === 2);
+          
+          if (utlBloco1 || utlBloco2) {
+            const pt1 = utlBloco1 ? utlBloco1.pontuacao_total : 0;
+            const pt2 = utlBloco2 ? utlBloco2.pontuacao_total : 0;
+            riscoCalc = classificarRisco(pt1 + pt2);
+          }
+        }
+
+        return {
+          ...cid,
+          temQuestionario,
+          riscoAtual: riscoCalc
+        };
+      });
       setCidadaos(cidadaosFormatados);
     }
     setLoading(false);
@@ -118,8 +141,17 @@ export default function Cidadaos() {
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                       {cid.codigo_autogerado}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-semibold">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-semibold flex items-center gap-2">
                       {cid.nome}
+                      {cid.riscoAtual && (
+                        <span 
+                          className={`px-2 py-0.5 text-[10px] uppercase font-bold tracking-wider rounded border ${cid.riscoAtual.corCss}`}
+                          title={`Pontuação Total: ${cid.riscoAtual.pontos} - ${cid.riscoAtual.nome}`}
+                        >
+                          <Activity className="w-3 h-3 inline mr-1 -mt-0.5" />
+                          {cid.riscoAtual.sigla}
+                        </span>
+                      )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {cid.cpf}

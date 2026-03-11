@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { ArrowLeft, Loader2, Save, Search, UserCheck } from 'lucide-react';
+import { calcularApenasCertoBloco } from '../lib/riscoUtils';
 
 const perguntasBloco1 = [
   "Você tem amigos?",
@@ -114,7 +115,9 @@ export default function Questionario() {
   };
 
   const calcularPontuacao = () => {
-    return Object.values(respostas).filter(r => r === 'sim').length;
+    const totalSim = Object.values(respostas).filter(r => r === 'sim').length;
+    if (!bloco) return 0;
+    return calcularApenasCertoBloco(bloco, totalSim);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

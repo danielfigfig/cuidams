@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { ArrowLeft, Loader2, User, ClipboardList, CheckCircle2, XCircle } from 'lucide-react';
+import { ArrowLeft, Loader2, User, ClipboardList, CheckCircle2, XCircle, Activity } from 'lucide-react';
+import { classificarRisco, type RiscoDetalhado } from '../lib/riscoUtils';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -14,6 +15,7 @@ export default function HistoricoQuestionario() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [selectedQ, setSelectedQ] = useState<any>(null);
+  const [riscoAtual, setRiscoAtual] = useState<RiscoDetalhado | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -40,7 +42,20 @@ export default function HistoricoQuestionario() {
           .order('data_preenchimento', { ascending: false });
 
         if (qError) throw qError;
-        if (qData) setQuestionarios(qData);
+        if (qData) {
+          setQuestionarios(qData);
+          
+          if (qData.length > 0) {
+            const utlBloco1 = qData.find(q => q.bloco === 1);
+            const utlBloco2 = qData.find(q => q.bloco === 2);
+            
+            if (utlBloco1 || utlBloco2) {
+              const pt1 = utlBloco1 ? utlBloco1.pontuacao_total : 0;
+              const pt2 = utlBloco2 ? utlBloco2.pontuacao_total : 0;
+              setRiscoAtual(classificarRisco(pt1 + pt2));
+            }
+          }
+        }
 
       } catch (err: any) {
         console.error('Erro ao carregar dados:', err);
@@ -78,8 +93,16 @@ export default function HistoricoQuestionario() {
             <ArrowLeft className="w-6 h-6" />
           </button>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-gray-900">Histórico CuidaSM</h1>
-            <p className="text-sm text-gray-500">Cidadão: <span className="font-bold text-gray-700">{cidadao.nome}</span></p>
+            <h1 className="text-2xl font-bold tracking-tight text-gray-900 flex items-center gap-3">
+              Histórico CuidaSM
+              {riscoAtual && (
+                <span className={`px-2.5 py-1 text-xs uppercase font-bold tracking-wider rounded-md border flex items-center ${riscoAtual.corCss}`}>
+                  <Activity className="w-4 h-4 mr-1.5" />
+                  {riscoAtual.sigla} - {riscoAtual.nome} (Total: {riscoAtual.pontos})
+                </span>
+              )}
+            </h1>
+            <p className="text-sm text-gray-500 mt-1">Cidadão: <span className="font-bold text-gray-700">{cidadao.nome}</span></p>
           </div>
         </div>
         <div className="text-right hidden sm:block">
