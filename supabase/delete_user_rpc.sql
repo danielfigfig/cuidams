@@ -10,9 +10,10 @@ BEGIN
     SELECT 1 FROM public.perfis_usuarios 
     WHERE id = auth.uid() AND nivel_acesso = 'A'
   ) THEN
-    -- 2. Deleta o usuário da tabela auth.users. 
-    -- Como a tabela perfis_usuarios possui "REFERENCES auth.users(id) ON DELETE CASCADE", 
-    -- isso vai deletar automaticamente da tabela perfis_usuarios também!
+    -- 2. Deleta explicitamente do perfil PRIMEIRO (Garantia contra falta de CASCADE)
+    DELETE FROM public.perfis_usuarios WHERE id = target_user_id;
+    
+    -- 3. Deleta da tabela auth.users.
     DELETE FROM auth.users WHERE id = target_user_id;
   ELSE
     RAISE EXCEPTION 'Acesso Negado. Apenas administradores podem excluir usuários completamente.';
