@@ -48,17 +48,22 @@ export default function Usuarios() {
     
     setResetting(true);
     try {
-      const { error } = await supabase.rpc('change_user_password_by_admin', {
-        target_user_id: changingPasswordId,
-        admin_user_id: perfil?.id,
+      const { data, error } = await supabase.rpc('change_user_password_by_admin', {
+        target_user_id_text: changingPasswordId,
+        admin_user_id_text: perfil?.id,
         new_password: novaSenha
       });
 
       if (error) throw error;
       
-      alert('Senha alterada com sucesso!');
-      setChangingPasswordId(null);
-      setNovaSenha('');
+      const result = data as { success: boolean, message: string };
+      if (result.success) {
+        alert(result.message);
+        setChangingPasswordId(null);
+        setNovaSenha('');
+      } else {
+        alert(result.message);
+      }
     } catch (error: any) {
       console.error('Erro ao alterar senha:', error);
       alert('Erro ao alterar senha: ' + (error.message || 'Verifique se você executou o script SQL no Supabase.'));
