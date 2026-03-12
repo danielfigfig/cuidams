@@ -18,6 +18,16 @@ export default function Cadastro() {
   const [equipeId, setEquipeId] = useState('');
   const [microArea, setMicroArea] = useState('');
   const [nivelAcesso, setNivelAcesso] = useState<'B' | 'C' | 'D' | 'E'>('D');
+  const [aceitouTermos, setAceitouTermos] = useState(false);
+  const [userIp, setUserIp] = useState('');
+
+  useEffect(() => {
+    // Obter IP para log de auditoria LGPD
+    fetch('https://api.ipify.org?format=json')
+      .then(res => res.json())
+      .then(data => setUserIp(data.ip))
+      .catch(err => console.error('Erro ao obter IP:', err));
+  }, []);
 
   useEffect(() => {
     const fetchEquipes = async () => {
@@ -64,6 +74,14 @@ export default function Cadastro() {
         });
 
         if (perfilErr) throw perfilErr;
+
+        // 3. Registrar Log de Aceite dos Termos (Auditoria LGPD)
+        await supabase.from('logs_aceite_termos').insert({
+          usuario_id: authData.user.id,
+          versao_termo: '1.0',
+          ip_endereco: userIp,
+          user_agent: navigator.userAgent
+        });
         
         // Relogin is automatic in some cases, but redirect to login is best practice
         navigate('/login');
@@ -141,12 +159,63 @@ export default function Cadastro() {
                 </select>
               </div>
 
+              <div className="col-span-2 mt-4">
+                <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg space-y-4">
+                  <h3 className="text-sm font-bold text-gray-900 border-b pb-2">Termo de Uso e Consentimento para Tratamento de Dados Pessoais</h3>
+                  <div className="text-[11px] text-gray-600 space-y-3 leading-relaxed max-h-48 overflow-y-auto pr-2 custom-scrollbar text-left">
+                    <p><strong>1. Objetivo e Natureza dos Dados</strong><br />
+                    Ao prosseguir com o cadastro, você compreende que este sistema armazena dados pessoais sensíveis (informações de saúde, histórico clínico e indicadores de pacientes). O tratamento desses dados tem como finalidade exclusiva a gestão da assistência à saúde e o acompanhamento de indicadores clínicos no âmbito da Atenção Primária.</p>
+                    
+                    <p><strong>2. Responsabilidades do Usuário</strong><br />
+                    Ao clicar em "Aceito", você se compromete a:<br />
+                    • <strong>Sigilo Profissional:</strong> Manter total confidencialidade sobre as informações acessadas, não as compartilhando com terceiros não autorizados.<br />
+                    • <strong>Uso de Credenciais:</strong> Reconhecer que o seu login e senha são pessoais e intransferíveis. Qualquer ação realizada sob seu usuário será de sua inteira responsabilidade.<br />
+                    • <strong>Finalidade:</strong> Utilizar os dados apenas para o exercício de suas funções profissionais e atividades de gestão autorizadas.</p>
+                    
+                    <p><strong>3. Base Legal (LGPD)</strong><br />
+                    O tratamento dos dados neste site fundamenta-se no Artigo 7º (Execução de Políticas Públicas) e Artigo 11 (Tutela da Saúde) da Lei nº 13.709/2018 (LGPD). Garantimos que a coleta é limitada ao mínimo necessário para a operação do serviço.</p>
+                    
+                    <p><strong>4. Segurança e Retenção</strong><br />
+                    Implementamos medidas técnicas de segurança (como criptografia e controle de acesso) para proteger os dados contra acessos indevidos. Os logs de acesso são registrados para fins de auditoria e segurança.</p>
+                    
+                    <p><strong>5. Direitos do Titular</strong><br />
+                    O sistema permite a retificação de dados e o controle de acesso conforme os níveis hierárquicos estabelecidos pela coordenação.</p>
+                  </div>
+                  
+                  <label className="flex items-start gap-3 cursor-pointer group mt-2">
+                    <div className="relative flex items-center mt-1">
+                      <input
+                        type="checkbox"
+                        required
+                        checked={aceitouTermos}
+                        onChange={(e) => setAceitouTermos(e.target.checked)}
+                        className="peer h-5 w-5 cursor-pointer appearance-none rounded border border-gray-300 bg-white checked:bg-emerald-600 checked:border-emerald-600 transition-all focus:ring-2 focus:ring-emerald-500"
+                      />
+                      <svg
+                        className="pointer-events-none absolute left-1/2 top-1/2 h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 text-white opacity-0 peer-checked:opacity-100"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                    </div>
+                    <span className="text-xs text-gray-600 leading-snug text-left group-hover:text-gray-900 transition-colors">
+                      Li e concordo com os termos acima expostos e declaro estar ciente das minhas responsabilidades civis e administrativas no manejo de dados sensíveis de pacientes.
+                    </span>
+                  </label>
+                </div>
+              </div>
             </div>
 
             <div className="pt-4">
               <button
                 type="submit"
-                disabled={loading}
+                disabled={loading || !aceitouTermos}
                 className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Finalizar Cadastro'}
@@ -164,3 +233,4 @@ export default function Cadastro() {
     </div>
   );
 }
+
