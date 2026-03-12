@@ -15,7 +15,7 @@ interface UsuarioRelatorio {
   totalQuestionarios: number;
 }
 
-export default function Relatorios() {
+export default function RelatorioProdutividade() {
   const { perfil } = useAuth();
   const [dados, setDados] = useState<UsuarioRelatorio[]>([]);
   const [loading, setLoading] = useState(true);

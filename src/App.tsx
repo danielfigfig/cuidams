@@ -11,7 +11,8 @@ import Cidadaos from './pages/Cidadaos';
 import CidadaoForm from './pages/CidadaoForm';
 import Questionario from './pages/Questionario';
 import HistoricoQuestionario from './pages/HistoricoQuestionario';
-import Relatorios from './pages/Relatorios';
+import RelatorioProdutividade from './pages/RelatorioProdutividade';
+import RelatorioEstratificados from './pages/RelatorioEstratificados';
 
 function App() {
   return (
@@ -34,7 +35,9 @@ function App() {
             <Route path="/cidadaos/novo" element={<CidadaoForm />} />
             <Route path="/cidadaos/:id/questionario" element={<Questionario />} />
             <Route path="/cidadaos/:id/historico" element={<HistoricoQuestionario />} />
-            <Route path="/relatorios" element={<Relatorios />} />
+            <Route path="/relatorios" element={<Navigate to="/relatorios/produtividade" replace />} />
+            <Route path="/relatorios/produtividade" element={<RelatorioProdutividade />} />
+            <Route path="/relatorios/estratificados" element={<RelatorioEstratificados />} />
           </Route>
         </Routes>
       </AuthProvider>
