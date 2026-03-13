@@ -33,10 +33,43 @@ export default function Usuarios() {
       </div>
     );
   }
+  const [changingPasswordId, setChangingPasswordId] = useState<string | null>(null);
+  const [novaSenha, setNovaSenha] = useState('');
+  const [resetting, setResetting] = useState(false);
 
   const handleEdit = (user: any) => {
     setEditingId(user.id);
     setNovoNivel(user.nivel_acesso);
+  };
+
+  const handlePasswordReset = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!changingPasswordId || !novaSenha) return;
+    
+    setResetting(true);
+    try {
+      const { data, error } = await supabase.rpc('change_user_password_by_admin', {
+        target_user_id_text: changingPasswordId,
+        admin_user_id_text: perfil?.id,
+        new_password: novaSenha
+      });
+
+      if (error) throw error;
+      
+      const result = data as { success: boolean, message: string };
+      if (result.success) {
+        alert(result.message);
+        setChangingPasswordId(null);
+        setNovaSenha('');
+      } else {
+        alert(result.message);
+      }
+    } catch (error: any) {
+      console.error('Erro ao alterar senha:', error);
+      alert('Erro ao alterar senha: ' + (error.message || 'Verifique se você executou o script SQL no Supabase.'));
+    } finally {
+      setResetting(false);
+    }
   };
 
   const handleSave = async (id: string) => {
@@ -57,7 +90,10 @@ export default function Usuarios() {
     if (window.confirm(`Tem certeza que deseja excluir o usuário ${nome}? Esta ação removerá o acesso dele ao sistema.`)) {
       setLoading(true);
       const { error } = await supabase
-        .rpc('delete_user_by_admin', { target_user_id: id, admin_user_id: perfil?.id });
+        .rpc('delete_user_by_admin', { 
+          target_user_id_text: id, 
+          admin_user_id_text: perfil?.id 
+        });
         
       if (!error) {
         setUsuarios(usuarios.filter(u => u.id !== id));
@@ -70,12 +106,60 @@ export default function Usuarios() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 relative">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold tracking-tight text-gray-900 flex items-center">
           <Shield className="mr-3 text-indigo-500 w-8 h-8" /> Gerenciamento de Usuários
         </h1>
       </div>
+
+      {/* Modal de Alteração de Senha */}
+      {changingPasswordId && (
+        <div className="fixed inset-0 bg-gray-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+            <div className="bg-emerald-600 px-6 py-4 flex items-center justify-between">
+              <h3 className="text-white font-bold">Alterar Senha do Usuário</h3>
+              <button onClick={() => setChangingPasswordId(null)} className="text-white/80 hover:text-white"><X className="w-5 h-5"/></button>
+            </div>
+            <form onSubmit={handlePasswordReset} className="p-6 space-y-4">
+              <p className="text-sm text-gray-600">
+                Alterando senha de: <span className="font-bold text-gray-900">
+                  {usuarios.find(u => u.id === changingPasswordId)?.nome_completo}
+                </span>
+              </p>
+              <div>
+                <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-1 text-left">Nova Senha</label>
+                <input
+                  type="password"
+                  required
+                  min={6}
+                  value={novaSenha}
+                  onChange={(e) => setNovaSenha(e.target.value)}
+                  placeholder="Mínimo 6 caracteres"
+                  className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none transition-all"
+                  autoFocus
+                />
+              </div>
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setChangingPasswordId(null)}
+                  className="flex-1 py-2 text-sm font-bold text-gray-500 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={resetting || novaSenha.length < 6}
+                  className="flex-1 py-2 text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 rounded-lg transition-colors flex items-center justify-center"
+                >
+                  {resetting ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Confirmar Alteração'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         {loading ? (
@@ -137,6 +221,11 @@ export default function Usuarios() {
                         </div>
                       ) : (
                         <div className="flex justify-end space-x-2">
+                          <button onClick={() => setChangingPasswordId(u.id)} className="text-emerald-600 hover:text-emerald-900 bg-emerald-50 p-1.5 rounded-md" title="Alterar Senha">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3m-3-3l-2.5-2.5" />
+                            </svg>
+                          </button>
                           <button onClick={() => handleEdit(u)} className="text-indigo-600 hover:text-indigo-900 bg-indigo-50 p-1.5 rounded-md" title="Editar Nível">
                             <Edit2 className="w-4 h-4" />
                           </button>

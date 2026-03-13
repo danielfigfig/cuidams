@@ -37,8 +37,12 @@ export default function Login() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="flex justify-center mb-6">
-          <img src="/logo.png" alt="SESAU Aquidauana" className="h-16 object-contain" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+        <div className="flex justify-center mb-8 px-4">
+          <img 
+            src="/logo.png" 
+            alt="SESAU Aquidauana" 
+            className="w-full h-auto max-h-24 object-contain drop-shadow-sm" 
+          />
         </div>
         <div className="flex justify-center">
           <HeartPulse className="w-12 h-12 text-emerald-500" />

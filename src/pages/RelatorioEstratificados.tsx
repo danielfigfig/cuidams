@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
-import { FileBarChart, Printer, Loader2, Users, Activity } from 'lucide-react';
+import { Printer, Loader2, Users, Activity } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { classificarRisco } from '../lib/riscoUtils';

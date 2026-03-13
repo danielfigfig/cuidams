@@ -23,7 +23,7 @@ export default function Layout() {
   }
 
   const links = [
-    { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+    { to: '/dashboard', icon: LayoutDashboard, label: 'CLASSIFICAÇÕES' },
     { to: '/cidadaos', icon: Users, label: 'Cidadãos' }
   ];
 

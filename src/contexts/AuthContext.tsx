@@ -46,6 +46,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
       if (session?.user) {
+        setLoading(true); // Garantir que está carregando o perfil
         fetchPerfil(session.user.id);
       } else {
         setPerfil(null);
@@ -57,14 +58,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const fetchPerfil = async (userId: string) => {
-    const { data } = await supabase
-      .from('perfis_usuarios')
-      .select('*')
-      .eq('id', userId)
-      .single();
-    
-    if (data) setPerfil(data);
-    setLoading(false);
+    try {
+      const { data, error } = await supabase
+        .from('perfis_usuarios')
+        .select('*')
+        .eq('id', userId)
+        .single();
+      
+      if (error) throw error;
+      if (data) setPerfil(data);
+    } catch (error) {
+      console.error('Erro ao buscar perfil:', error);
+      setPerfil(null);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const signOut = async () => {
