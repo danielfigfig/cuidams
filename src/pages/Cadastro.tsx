@@ -52,16 +52,18 @@ export default function Cadastro() {
     }
 
     try {
-      // Verificar se o CPF já existe antes de qualquer ação
+      // Verificar se o CPF ou o E-mail já existem antes de qualquer ação
+      // Isso evita o erro de FK caso o e-mail já exista no Auth (o Supabase retorna um ID "falso" por segurança)
       const { data: existingUser } = await supabase
         .from('perfis_usuarios')
-        .select('id, email')
-        .eq('cpf', cpf.replace(/\D/g, ''))
-        .single();
+        .select('id, email, cpf')
+        .or(`cpf.eq.${cpf.replace(/\D/g, '')},email.eq.${email}`)
+        .maybeSingle();
 
       if (existingUser) {
-        setError('Este CPF já está cadastrado no sistema. Se você não recebeu o e-mail de confirmação, use o botão abaixo.');
-        setEmail(existingUser.email); // Seta o email para que o reenvio funcione
+        const field = existingUser.cpf === cpf.replace(/\D/g, '') ? 'CPF' : 'E-mail';
+        setError(`Este ${field} já está cadastrado no sistema. Se você não recebeu o e-mail de confirmação, use o botão abaixo.`);
+        setEmail(existingUser.email); // Garante que o email de reenvio seja o correto
         setLoading(false);
         return;
       }
@@ -106,9 +108,19 @@ export default function Cadastro() {
         
         // Em vez de navegar para o login, mostramos a tela de sucesso
         setIsSuccess(true);
+      } else {
+        // Caso o usuário seja nulo e não haja erro, geralmente significa que o email já existe (segurança do Supabase)
+        setError('Este e-mail já pode estar em uso. Tente fazer login ou verifique se recebeu o e-mail de confirmação.');
       }
     } catch (err: any) {
-      setError(err.message || 'Ocorreu um erro durante o cadastro.');
+      console.error('Erro no cadastro:', err);
+      
+      // Tratamento amigável para erro de FK (Foreign Key) ou Duplicidade
+      if (err.message?.includes('perfis_usuarios_id_fkey') || err.message?.includes('foreign key constraint')) {
+        setError('Este e-mail ou CPF já está vinculado a uma conta. Tente fazer login ou use o botão de reenvio de e-mail abaixo.');
+      } else {
+        setError(err.message || 'Ocorreu um erro inesperado durante o cadastro.');
+      }
     } finally {
       setLoading(false);
     }
