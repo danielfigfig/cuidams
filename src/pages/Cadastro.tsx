@@ -53,7 +53,7 @@ export default function Cadastro() {
 
     try {
       // Verificar se o CPF já existe antes de qualquer ação
-      const { data: existingUser, error: checkError } = await supabase
+      const { data: existingUser } = await supabase
         .from('perfis_usuarios')
         .select('id, email')
         .eq('cpf', cpf.replace(/\D/g, ''))
