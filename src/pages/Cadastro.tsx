@@ -52,6 +52,20 @@ export default function Cadastro() {
     }
 
     try {
+      // Verificar se o CPF já existe antes de qualquer ação
+      const { data: existingUser, error: checkError } = await supabase
+        .from('perfis_usuarios')
+        .select('id, email')
+        .eq('cpf', cpf.replace(/\D/g, ''))
+        .single();
+
+      if (existingUser) {
+        setError('Este CPF já está cadastrado no sistema. Se você não recebeu o e-mail de confirmação, use o botão abaixo.');
+        setEmail(existingUser.email); // Seta o email para que o reenvio funcione
+        setLoading(false);
+        return;
+      }
+
       let finalEquipeId = equipeId;
 
       // 1. SignUp
@@ -192,8 +206,27 @@ export default function Cadastro() {
         <div className="bg-white py-8 px-4 shadow-xl shadow-emerald-100 sm:rounded-xl sm:px-10 border border-gray-100">
           <form className="space-y-5" onSubmit={handleCadastro}>
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
-                {error}
+              <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm space-y-3">
+                <p className="font-medium">{error}</p>
+                {error.includes('CPF já está cadastrado') && (
+                  <button
+                    type="button"
+                    onClick={handleResendEmail}
+                    disabled={resendLoading}
+                    className="w-full py-2 px-3 bg-white border border-red-200 rounded-md text-xs font-bold text-red-700 hover:bg-red-50 transition-colors flex items-center justify-center gap-2"
+                  >
+                    {resendLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Mail className="w-3 h-3" />}
+                    {resendLoading ? 'Reenviando...' : 'Reenviar E-mail de Confirmação'}
+                  </button>
+                )}
+                {resendMessage.text && (
+                  <p className={clsx(
+                    "text-[10px] font-bold uppercase p-1 rounded text-center",
+                    resendMessage.type === 'success' ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-800"
+                  )}>
+                    {resendMessage.text}
+                  </p>
+                )}
               </div>
             )}
             
