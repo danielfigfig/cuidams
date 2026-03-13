@@ -17,7 +17,7 @@ export default function Cadastro() {
   const [senha, setSenha] = useState('');
   const [equipeId, setEquipeId] = useState('');
   const [microArea, setMicroArea] = useState('');
-  const [nivelAcesso, setNivelAcesso] = useState<'B' | 'C' | 'D' | 'E'>('D');
+  const [nivelAcesso, setNivelAcesso] = useState<'C' | 'D'>('D');
   const [aceitouTermos, setAceitouTermos] = useState(false);
   const [userIp, setUserIp] = useState('');
 
@@ -152,10 +152,8 @@ export default function Cadastro() {
               <div className="col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-1">Perfil (Nível de Acesso)</label>
                 <select value={nivelAcesso} onChange={(e) => setNivelAcesso(e.target.value as any)} className="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm">
-                  <option value="B">B - Coordenador</option>
                   <option value="C">C - Outro Profissional</option>
                   <option value="D">D - ACS</option>
-                  <option value="E">E - Gerente da Unidade</option>
                 </select>
               </div>
 
