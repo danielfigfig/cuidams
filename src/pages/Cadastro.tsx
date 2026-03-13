@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { HeartPulse, Loader2 } from 'lucide-react';
+import { HeartPulse, Loader2, Mail, CheckCircle2, ArrowLeft } from 'lucide-react';
 import { validarCPF, formatarCPF, formatarMicroArea, gerarCodigo } from '../lib/utils';
+import clsx from 'clsx';
 
 export default function Cadastro() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [equipes, setEquipes] = useState<{ id: string; nome: string }[]>([]);
-  const navigate = useNavigate();
 
   // State
   const [nomeCompleto, setNomeCompleto] = useState('');
@@ -20,6 +20,9 @@ export default function Cadastro() {
   const [nivelAcesso, setNivelAcesso] = useState<'C' | 'D'>('D');
   const [aceitouTermos, setAceitouTermos] = useState(false);
   const [userIp, setUserIp] = useState('');
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
+  const [resendMessage, setResendMessage] = useState({ type: '', text: '' });
 
   useEffect(() => {
     // Obter IP para log de auditoria LGPD
@@ -86,8 +89,9 @@ export default function Cadastro() {
           user_agent: navigator.userAgent
         });
         
-        // Relogin is automatic in some cases, but redirect to login is best practice
-        navigate('/login');
+        
+        // Em vez de navegar para o login, mostramos a tela de sucesso
+        setIsSuccess(true);
       }
     } catch (err: any) {
       setError(err.message || 'Ocorreu um erro durante o cadastro.');
@@ -95,6 +99,83 @@ export default function Cadastro() {
       setLoading(false);
     }
   };
+
+  const handleResendEmail = async () => {
+    setResendLoading(true);
+    setResendMessage({ type: '', text: '' });
+    
+    try {
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/login`
+        }
+      });
+      
+      if (error) throw error;
+      setResendMessage({ type: 'success', text: 'E-mail de confirmação reenviado com sucesso!' });
+    } catch (err: any) {
+      setResendMessage({ type: 'error', text: err.message || 'Erro ao reenviar e-mail.' });
+    } finally {
+      setResendLoading(false);
+    }
+  };
+
+  if (isSuccess) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+        <div className="sm:mx-auto sm:w-full sm:max-w-md">
+          <div className="bg-white py-10 px-8 shadow-xl shadow-emerald-100 rounded-2xl border border-gray-100 text-center space-y-6">
+            <div className="flex justify-center">
+              <div className="bg-emerald-100 p-4 rounded-full">
+                <CheckCircle2 className="w-12 h-12 text-emerald-600" />
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <h2 className="text-2xl font-black text-gray-900">Cadastro Realizado!</h2>
+              <p className="text-gray-500">Enviamos um link de confirmação para o seu e-mail:</p>
+              <p className="font-bold text-emerald-700 bg-emerald-50 py-1 px-3 rounded-lg inline-block">{email}</p>
+            </div>
+
+            <div className="bg-blue-50 p-4 rounded-xl text-sm text-blue-800 text-left border border-blue-100">
+              <p className="font-bold mb-1 flex items-center">
+                <Mail className="w-4 h-4 mr-2" /> Próximo passo:
+              </p>
+              <p>Por favor, acesse sua caixa de entrada e clique no link para ativar sua conta. Verifique também a pasta de <strong>Spam</strong> ou <strong>Lixo Eletrônico</strong>.</p>
+            </div>
+
+            {resendMessage.text && (
+              <div className={clsx(
+                "p-3 rounded-lg text-sm font-medium",
+                resendMessage.type === 'success' ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700"
+              )}>
+                {resendMessage.text}
+              </div>
+            )}
+
+            <div className="pt-4 flex flex-col gap-3">
+              <button
+                onClick={handleResendEmail}
+                disabled={resendLoading}
+                className="w-full flex justify-center items-center py-2.5 px-4 border-2 border-emerald-600 rounded-lg text-sm font-bold text-emerald-700 hover:bg-emerald-50 transition-colors disabled:opacity-50"
+              >
+                {resendLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Reenviar E-mail de Confirmação'}
+              </button>
+              
+              <Link
+                to="/login"
+                className="w-full flex justify-center items-center py-2.5 px-4 bg-gray-900 rounded-lg text-sm font-bold text-white hover:bg-gray-800 transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" /> Voltar para o Login
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
