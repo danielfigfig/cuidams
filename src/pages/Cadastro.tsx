@@ -217,30 +217,6 @@ export default function Cadastro() {
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-xl">
         <div className="bg-white py-8 px-4 shadow-xl shadow-emerald-100 sm:rounded-xl sm:px-10 border border-gray-100">
           <form className="space-y-5" onSubmit={handleCadastro}>
-            {error && (
-              <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm space-y-3">
-                <p className="font-medium">{error}</p>
-                {error.includes('CPF já está cadastrado') && (
-                  <button
-                    type="button"
-                    onClick={handleResendEmail}
-                    disabled={resendLoading}
-                    className="w-full py-2 px-3 bg-white border border-red-200 rounded-md text-xs font-bold text-red-700 hover:bg-red-50 transition-colors flex items-center justify-center gap-2"
-                  >
-                    {resendLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Mail className="w-3 h-3" />}
-                    {resendLoading ? 'Reenviando...' : 'Reenviar E-mail de Confirmação'}
-                  </button>
-                )}
-                {resendMessage.text && (
-                  <p className={clsx(
-                    "text-[10px] font-bold uppercase p-1 rounded text-center",
-                    resendMessage.type === 'success' ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-800"
-                  )}>
-                    {resendMessage.text}
-                  </p>
-                )}
-              </div>
-            )}
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div className="col-span-2">
@@ -339,7 +315,7 @@ export default function Cadastro() {
               </div>
             </div>
 
-            <div className="pt-4">
+            <div className="pt-4 space-y-4">
               <button
                 type="submit"
                 disabled={loading || !aceitouTermos}
@@ -347,6 +323,31 @@ export default function Cadastro() {
               >
                 {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Finalizar Cadastro'}
               </button>
+
+              {error && (
+                <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm space-y-3 animate-shake">
+                  <p className="font-medium">{error}</p>
+                  {error.includes('CPF já está cadastrado') && (
+                    <button
+                      type="button"
+                      onClick={handleResendEmail}
+                      disabled={resendLoading}
+                      className="w-full py-2 px-3 bg-white border border-red-200 rounded-md text-xs font-bold text-red-700 hover:bg-red-50 transition-colors flex items-center justify-center gap-2"
+                    >
+                      {resendLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Mail className="w-3 h-3" />}
+                      {resendLoading ? 'Reenviando...' : 'Reenviar E-mail de Confirmação'}
+                    </button>
+                  )}
+                  {resendMessage.text && (
+                    <p className={clsx(
+                      "text-[10px] font-bold uppercase p-1 rounded text-center",
+                      resendMessage.type === 'success' ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-800"
+                    )}>
+                      {resendMessage.text}
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
           </form>
 
