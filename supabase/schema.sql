@@ -32,7 +32,7 @@ CREATE TABLE cidadaos (
 CREATE TABLE questionarios_cuida_sm (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   cidadao_id UUID NOT NULL REFERENCES cidadaos(id) ON DELETE CASCADE,
-  usuario_id UUID NOT NULL REFERENCES perfis_usuarios(id) ON DELETE SET NULL,
+  usuario_id UUID REFERENCES perfis_usuarios(id) ON DELETE SET NULL,
   data_preenchimento TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   bloco INTEGER NOT NULL CHECK (bloco IN (1, 2)),
   pontuacao_total INTEGER NOT NULL,
