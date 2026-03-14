@@ -6,17 +6,20 @@ import { Shield, Loader2, Edit2, Check, X, Trash2 } from 'lucide-react';
 export default function Usuarios() {
   const { perfil } = useAuth();
   const [usuarios, setUsuarios] = useState<any[]>([]);
+  const [equipes, setEquipes] = useState<{ id: string; nome: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [novoNivel, setNovoNivel] = useState('');
+  const [novaEquipeId, setNovaEquipeId] = useState<string>('');
   
   const fetchUsuarios = async () => {
     setLoading(true);
-    const { data } = await supabase
-      .from('perfis_usuarios')
-      .select('*, equipes(nome)')
-      .order('criado_em', { ascending: false });
-    if (data) setUsuarios(data);
+    const [{ data: usersData }, { data: equipesData }] = await Promise.all([
+      supabase.from('perfis_usuarios').select('*, equipes(nome)').order('criado_em', { ascending: false }),
+      supabase.from('equipes').select('id, nome').order('nome')
+    ]);
+    if (usersData) setUsuarios(usersData);
+    if (equipesData) setEquipes(equipesData);
     setLoading(false);
   };
 
@@ -40,6 +43,7 @@ export default function Usuarios() {
   const handleEdit = (user: any) => {
     setEditingId(user.id);
     setNovoNivel(user.nivel_acesso);
+    setNovaEquipeId(user.equipe_id || '');
   };
 
   const handlePasswordReset = async (e: React.FormEvent) => {
@@ -73,15 +77,20 @@ export default function Usuarios() {
   };
 
   const handleSave = async (id: string) => {
+    const equipeIdToSave = novaEquipeId === '' ? null : novaEquipeId;
     const { error } = await supabase
       .from('perfis_usuarios')
-      .update({ nivel_acesso: novoNivel })
+      .update({ nivel_acesso: novoNivel, equipe_id: equipeIdToSave })
       .eq('id', id);
       
     if (!error) {
-      setUsuarios(usuarios.map(u => u.id === id ? { ...u, nivel_acesso: novoNivel } : u));
+      const equipeNome = equipes.find(e => e.id === novaEquipeId)?.nome || null;
+      setUsuarios(usuarios.map(u => u.id === id
+        ? { ...u, nivel_acesso: novoNivel, equipe_id: equipeIdToSave, equipes: equipeNome ? { nome: equipeNome } : null }
+        : u
+      ));
     } else {
-      alert('Erro ao atualizar nível. Você tem permissão para isso?');
+      alert('Erro ao atualizar. Você tem permissão para isso?');
     }
     setEditingId(null);
   };
@@ -188,7 +197,20 @@ export default function Usuarios() {
                       <div className="text-xs text-gray-500">{u.cpf}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {u.equipes?.nome || '-'}
+                      {editingId === u.id ? (
+                        <select
+                          value={novaEquipeId}
+                          onChange={(e) => setNovaEquipeId(e.target.value)}
+                          className="text-sm border-gray-300 rounded-md focus:ring-emerald-500 focus:border-emerald-500 w-full"
+                        >
+                          <option value="">Sem equipe</option>
+                          {equipes.map((eq) => (
+                            <option key={eq.id} value={eq.id}>{eq.nome}</option>
+                          ))}
+                        </select>
+                      ) : (
+                        u.equipes?.nome || '-'
+                      )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       {editingId === u.id ? (
