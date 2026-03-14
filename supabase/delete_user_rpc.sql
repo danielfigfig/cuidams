@@ -8,7 +8,7 @@ CREATE OR REPLACE FUNCTION delete_user_by_admin(target_user_id_text TEXT, admin_
 RETURNS void
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path = public
+SET search_path = public, auth
 AS $$
 DECLARE
   target_id UUID;
@@ -23,10 +23,14 @@ BEGIN
     SELECT 1 FROM perfis_usuarios 
     WHERE id = admin_id AND nivel_acesso = 'A'
   ) THEN
-    -- 2. Deleta explicitamente do perfil (Garantia contra falta de CASCADE)
+    -- 2. Deleta todos os logs LGPD do usuário (se houver, para garantir sem erros de FK)
+    DELETE FROM logs_aceite_termos WHERE usuario_id = target_id;
+    
+    -- 3. Deleta o perfil público (o cascade cuida do restante)
     DELETE FROM perfis_usuarios WHERE id = target_id;
     
-    -- 3. Deleta da tabela auth.users.
+    -- 4. Deleta o usuário do sistema de autenticação.
+    -- Usa a função interna do Supabase que garante que todos os hooks e cascades do Auth sejam acionados.
     DELETE FROM auth.users WHERE id = target_id;
   ELSE
     RAISE EXCEPTION 'Acesso Negado. Apenas administradores podem excluir usuários.';
