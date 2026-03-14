@@ -13,6 +13,7 @@ import Questionario from './pages/Questionario';
 import HistoricoQuestionario from './pages/HistoricoQuestionario';
 import RelatorioProdutividade from './pages/RelatorioProdutividade';
 import RelatorioEstratificados from './pages/RelatorioEstratificados';
+import AuthCallback from './pages/AuthCallback';
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
           <Route path="/cadastro" element={<Cadastro />} />
           <Route path="/recuperar-senha" element={<RecuperarSenha />} />
           <Route path="/reset-senha" element={<ResetSenha />} />
+          <Route path="/auth/callback" element={<AuthCallback />} />
 
           {/* Rotas Privadas Wrapper */}
           <Route element={<Layout />}>
